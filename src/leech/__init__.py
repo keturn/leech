@@ -41,6 +41,9 @@ class AppFilenames:
     def ensure_cache_directory_exists(self):
         self._ensure_directory(self._dirs.user_cache_dir)
 
+    def ensure_config_directory_exists(self):
+        self._ensure_directory(self._dirs.user_config_dir)
+
     def _ensure_directory(self, dirname):
         path = Path(dirname)
         if not path.exists():
@@ -167,6 +170,28 @@ def flush(verbose):
     cached_session.cache.clear()
 
     logger.info("Flushed cache")
+
+
+@cli.command()
+def make_skeleton_config():
+    """Create a skeleton configuration file."""
+    _appFilenames.ensure_config_directory_exists()
+    config_path = Path(_appFilenames.options)
+
+    if config_path.exists():
+        click.echo(f"\N{NO ENTRY} A file already exists at {config_path}; not overwriting it.")
+        return
+
+    default_config = dict(
+        logins={},
+        site_options={},
+        cover={}
+    )
+    with config_path.open('x', encoding='UTF-8') as config_file:
+        json.dump(default_config, config_file, indent=4, ensure_ascii=False)
+        config_file.write('\n')
+
+    click.echo(f"\N{HEAVY CHECK MARK} Created {config_path}")
 
 
 @cli.command()
