@@ -51,7 +51,7 @@ class AppFilenames:
         assert path.is_dir(), f"expected {path} to be a directory!"
 
 
-_appFilenames = AppFilenames()
+_app_filenames = AppFilenames()
 
 
 def configure_logging(verbose):
@@ -69,20 +69,20 @@ def configure_logging(verbose):
 
 def create_session(cache):
     if cache:
-        _appFilenames.ensure_cache_directory_exists()
+        _app_filenames.ensure_cache_directory_exists()
         try:
             # Extra logging if this fails, since the sqlite exception isn't good about
             # showing what it's trying to access.
-            session = requests_cache.CachedSession(_appFilenames.cache, expire_after=4 * 3600)
+            session = requests_cache.CachedSession(_app_filenames.cache, expire_after=4 * 3600)
         except Exception:
-            logger.error("failed to create request cache at %s", _appFilenames.cache)
+            logger.error("failed to create request cache at %s", _app_filenames.cache)
             raise
     else:
         session = requests.Session()
 
     lwp_cookiejar = http.cookiejar.LWPCookieJar()
     try:
-        lwp_cookiejar.load(_appFilenames.cookies, ignore_discard=True)
+        lwp_cookiejar.load(_app_filenames.cookies, ignore_discard=True)
     except FileNotFoundError:
         # This file is very much optional, so this log isn't really necessary
         # logging.exception("Couldn't load cookies from leech.cookies")
@@ -96,10 +96,10 @@ def create_session(cache):
 
 def load_on_disk_options(site):
     try:
-        with open(_appFilenames.options) as store_file:
+        with open(_app_filenames.options) as store_file:
             store = json.load(store_file)
     except FileNotFoundError:
-        logger.info("Unable to locate %s. Continuing assuming it does not exist.", _appFilenames.options)
+        logger.info("Unable to locate %s. Continuing assuming it does not exist.", _app_filenames.options)
         login = False
         configured_site_options = {}
         cover_options = {}
@@ -175,8 +175,8 @@ def flush(verbose):
 @cli.command()
 def make_skeleton_config():
     """Create a skeleton configuration file."""
-    _appFilenames.ensure_config_directory_exists()
-    config_path = Path(_appFilenames.options)
+    _app_filenames.ensure_config_directory_exists()
+    config_path = Path(_app_filenames.options)
 
     if config_path.exists():
         click.echo(f"\N{NO ENTRY} A file already exists at {config_path}; not overwriting it.")
