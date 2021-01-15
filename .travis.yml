@@ -1,16 +1,17 @@
 language: python
 python:
-  - "3.7"
+  - "3.8"
 
 before_install:
-  - pip install -q flit~=2.1
+  - pip install poetry
+  - pip install flake8
   - . $HOME/.nvm/nvm.sh
   - nvm install stable
   - nvm use stable
   - npm install -g eclint
 
 install:
-  - flit install
+  - poetry install
 
 script:
   - flake8 .
@@ -18,5 +19,4 @@ script:
   - leech --help
   - python3 src/leech/ebook/cover.py && file -E output.png && rm output.png
   # - python3 src/leech/ebook/epub.py && file -E test.epub
-  - flit build
   - ls -og dist/*
